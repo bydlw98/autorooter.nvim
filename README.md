@@ -1,0 +1,1 @@
+# autorooter.nvim
