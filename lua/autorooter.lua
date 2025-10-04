@@ -1,4 +1,5 @@
 local config = {
+  buftypes = { "", "nofile", "nowrite", "acwrite" },
   root_markers = { "Makefile", ".git" },
 }
 
@@ -15,9 +16,11 @@ local function root()
 end
 
 local function rooter()
-  local root_dir = root()
-  vim.cmd.cd(root_dir)
-  vim.notify("cwd: " .. root_dir)
+  if vim.list_contains(config.buftypes, vim.bo.buftype) then
+    local root_dir = root()
+    vim.cmd.cd(root_dir)
+    vim.notify("cwd: " .. root_dir)
+  end
 end
 
 local M = {}
