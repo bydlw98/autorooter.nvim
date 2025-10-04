@@ -3,16 +3,26 @@ local config = {
   root_markers = { "Makefile", ".git" },
 }
 
+---@return boolean
+local function contains(dir, file)
+  local path = vim.fs.joinpath(dir, file)
+
+  return vim.uv.fs_stat(path) ~= nil
+end
+
 ---@return string
 local function root()
   local filename = vim.api.nvim_buf_get_name(0)
-  local root_files = vim.fs.find(config.root_markers, { path = filename, upward = true })
 
-  if #root_files ~= 0 then
-    return vim.fs.dirname(root_files[1])
-  else
-    return vim.fs.dirname(filename)
+  for _, root_marker in ipairs(config.root_markers) do
+    for parent in vim.fs.parents(filename) do
+      if contains(parent, root_marker) then
+        return parent
+      end
+    end
   end
+
+  return vim.fs.dirname(filename)
 end
 
 local function rooter()
