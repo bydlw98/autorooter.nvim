@@ -4,14 +4,14 @@ local config = {
 
 ---@return string
 local function root()
-  local root_dir = vim.fs.root(0, config.root_markers)
+  local filename = vim.api.nvim_buf_get_name(0)
+  local root_files = vim.fs.find(config.root_markers, { path = filename, upward = true })
 
-  if root_dir == nil then
-    local filename = vim.api.nvim_buf_get_name(0)
-    root_dir = vim.fs.dirname(filename)
+  if #root_files ~= 0 then
+    return vim.fs.dirname(root_files[1])
+  else
+    return vim.fs.dirname(filename)
   end
-
-  return root_dir
 end
 
 local function rooter()
