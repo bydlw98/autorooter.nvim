@@ -13,6 +13,24 @@ local function contains(dir, file)
   return vim.uv.fs_stat(path) ~= nil
 end
 
+---Returns a list of parent directory paths.
+---@param filename string
+---@return string[]
+local function parents(filename)
+  local parent_dirs = { vim.fs.dirname(filename) }
+
+  while true do
+    local parent = vim.fs.dirname(parent_dirs[#parent_dirs])
+    if parent == parent_dirs[#parent_dirs] then
+      break
+    else
+      table.insert(parent_dirs, parent)
+    end
+  end
+
+  return parent_dirs
+end
+
 ---@return string
 local function root()
   local filename = vim.api.nvim_buf_get_name(0)
@@ -22,8 +40,9 @@ local function root()
     return root_dir
   end
 
+  local parent_dirs = parents(filename)
   for _, root_marker in ipairs(config.root_markers) do
-    for parent in vim.fs.parents(filename) do
+    for _, parent in ipairs(parent_dirs) do
       if contains(parent, root_marker) then
         cache[filename] = parent
         return parent
@@ -31,7 +50,7 @@ local function root()
     end
   end
 
-  root_dir = vim.fs.dirname(filename)
+  root_dir = parent_dirs[1]
   cache[filename] = root_dir
 
   return root_dir
