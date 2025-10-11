@@ -1,3 +1,6 @@
+---@type table<string, string>
+local cache = {}
+
 local config = {
   buftypes = { "", "nofile", "nowrite", "acwrite" },
   root_markers = { "Makefile", ".git" },
@@ -14,15 +17,24 @@ end
 local function root()
   local filename = vim.api.nvim_buf_get_name(0)
 
+  local root_dir = cache[filename]
+  if root_dir then
+    return root_dir
+  end
+
   for _, root_marker in ipairs(config.root_markers) do
     for parent in vim.fs.parents(filename) do
       if contains(parent, root_marker) then
+        cache[filename] = parent
         return parent
       end
     end
   end
 
-  return vim.fs.dirname(filename)
+  root_dir = vim.fs.dirname(filename)
+  cache[filename] = root_dir
+
+  return root_dir
 end
 
 local function rooter()
