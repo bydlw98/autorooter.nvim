@@ -2,9 +2,9 @@
 local cache = {}
 
 ---@class autorooter.Config
----@field activate fun(): boolean Checks if we should change to buffer's root directory
----@field root_markers string[] Filenames used to find buffer's root directory
----@field silent boolean Enables/disables notifications
+---@field activate? fun(): boolean Checks if we should change to buffer's root directory
+---@field root_markers? string[] Filenames used to find buffer's root directory
+---@field silent? boolean Enables/disables notifications
 
 ---@type autorooter.Config
 local config = {
@@ -81,7 +81,7 @@ end
 
 local M = {}
 
----@param opts autorooter.Config
+---@param opts? autorooter.Config
 function M.setup(opts)
   config = vim.tbl_deep_extend("force", config, opts or {})
 
