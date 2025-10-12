@@ -3,7 +3,7 @@ local cache = {}
 
 local config = {
   activate = function()
-    return vim.list_contains({ "", "nofile", "nowrite", "acwrite" }, vim.bo.buftype)
+    return vim.bo.buftype == ""
   end,
   root_markers = { "Makefile", ".git" },
   silent = false,
