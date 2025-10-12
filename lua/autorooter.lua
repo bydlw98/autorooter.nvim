@@ -1,6 +1,12 @@
 ---@type table<string, string>
 local cache = {}
 
+---@class autorooter.Config
+---@field activate fun(): boolean Checks if we should change to buffer's root directory
+---@field root_markers string[] Filenames used to find buffer's root directory
+---@field silent boolean Enables/disables notifications
+
+---@type autorooter.Config
 local config = {
   activate = function()
     return vim.bo.buftype == ""
@@ -9,6 +15,7 @@ local config = {
   silent = false,
 }
 
+---Returns `true` if `dir` contains `file`.
 ---@return boolean
 local function contains(dir, file)
   local path = vim.fs.joinpath(dir, file)
@@ -34,6 +41,7 @@ local function parents(filename)
   return parent_dirs
 end
 
+---Finds and returns the current buffer's root directory.
 ---@return string
 local function root()
   local filename = vim.api.nvim_buf_get_name(0)
@@ -59,6 +67,7 @@ local function root()
   return root_dir
 end
 
+---Changes to the buffer's root directory.
 local function rooter()
   if config.activate() then
     local root_dir = root()
@@ -72,6 +81,7 @@ end
 
 local M = {}
 
+---@param opts autorooter.Config
 function M.setup(opts)
   config = vim.tbl_deep_extend("force", config, opts or {})
 
