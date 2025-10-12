@@ -2,7 +2,9 @@
 local cache = {}
 
 local config = {
-  buftypes = { "", "nofile", "nowrite", "acwrite" },
+  activate = function()
+    return vim.list_contains({ "", "nofile", "nowrite", "acwrite" }, vim.bo.buftype)
+  end,
   root_markers = { "Makefile", ".git" },
   silent = false,
 }
@@ -58,7 +60,7 @@ local function root()
 end
 
 local function rooter()
-  if vim.list_contains(config.buftypes, vim.bo.buftype) then
+  if config.activate() then
     local root_dir = root()
     vim.cmd.cd(root_dir)
 
