@@ -74,6 +74,7 @@ local function rooter()
     vim.cmd.cd(root_dir)
 
     if not config.silent then
+      vim.cmd.redraw()
       vim.notify("cwd: " .. root_dir)
     end
   end
