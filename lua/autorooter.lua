@@ -86,6 +86,18 @@ local M = {}
 function M.setup(opts)
   config = vim.tbl_deep_extend("force", config, opts or {})
 
+  if vim.o.autochdir then
+    vim.o.autochdir = false
+    vim.notify(
+      "[autorooter.nvim]: `vim.o.autochdir` is turned off as it may interfere with this plugin",
+      vim.log.levels.WARN
+    )
+    vim.notify(
+      "[autorooter.nvim]: to prevent this warning, turn off `vim.o.autochdir` before loading this plugin",
+      vim.log.levels.WARN
+    )
+  end
+
   vim.api.nvim_create_autocmd({ "VimEnter", "BufEnter" }, {
     group = vim.api.nvim_create_augroup("autorooter.nvim", { clear = true }),
     callback = function()
