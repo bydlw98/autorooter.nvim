@@ -2,25 +2,24 @@
 local cache = {}
 
 ---@class autorooter.Config
----@field activate? fun(): boolean Checks if we should change to buffer's root directory
----@field root_markers? string[] Filenames used to find buffer's root directory
----@field silent? boolean Enables/disables notifications
-
----@type autorooter.Config
 local config = {
+  ---Checks if we should change to buffer's root directory.
+  ---@return boolean
   activate = function()
     return vim.bo.buftype == ""
   end,
+  ---Filenames used to find buffer's root directory.
+  ---@type string[]
   root_markers = { "Makefile", ".git" },
+  ---Enables/disables notifications.
+  ---@type boolean
   silent = false,
 }
 
 ---Returns `true` if `dir` contains `file`.
 ---@return boolean
 local function contains(dir, file)
-  local path = vim.fs.joinpath(dir, file)
-
-  return vim.uv.fs_stat(path) ~= nil
+  return vim.uv.fs_stat(vim.fs.joinpath(dir, file)) ~= nil
 end
 
 ---Returns a list of parent directory paths.
@@ -33,9 +32,9 @@ local function parents(filename)
     local parent = vim.fs.dirname(parent_dirs[#parent_dirs])
     if parent == parent_dirs[#parent_dirs] then
       break
-    else
-      table.insert(parent_dirs, parent)
     end
+
+    table.insert(parent_dirs, parent)
   end
 
   return parent_dirs
@@ -45,7 +44,6 @@ end
 ---@return string
 local function root()
   local filename = vim.api.nvim_buf_get_name(0)
-
   local root_dir = cache[filename]
   if root_dir then
     return root_dir
@@ -63,23 +61,26 @@ local function root()
 
   root_dir = parent_dirs[1]
   cache[filename] = root_dir
-
   return root_dir
 end
 
 ---Changes to the buffer's root directory.
 local function rooter()
-  if config.activate() then
-    local root_dir = root()
-    vim.cmd.cd(root_dir)
-
-    if not config.silent then
-      vim.cmd.redraw()
-      vim.notify("cwd: " .. root_dir)
-    end
+  if not config.activate() then
+    return
   end
+  local root_dir = root()
+  vim.api.nvim_set_current_dir(root_dir)
+
+  if config.silent then
+    return
+  end
+
+  vim.cmd.redraw()
+  vim.notify(("cwd: %s"):format(root_dir), vim.log.levels.INFO)
 end
 
+---@class autorooter
 local M = {}
 
 ---@param opts? autorooter.Config
@@ -107,3 +108,4 @@ function M.setup(opts)
 end
 
 return M
+-- vim:ts=2:sts=2:sw=2:et:
